@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import base64
 import time
@@ -82,29 +83,20 @@ def filter_paralogs(tid):
 
     return para_df
 
-from selenium import webdriver
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.firefox.options import Options
-from webdriver_manager.firefox import GeckoDriverManager
-
 def web_driver():
-    # Set up Firefox options
     options = Options()
-    options.add_argument("--headless")  # Runs Firefox in headless mode
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-gpu')
+    options.binary_location = "/mount/src/testing-deploy/assets/chromium/chromium"  # Update this path as needed
+
+    options.add_argument(f'--driver-path=/mount/src/testing-deploy/assets/chromedriver/chromedriver')  # Update path as needed
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1920,1200")
-    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument("--disable-dev-shm-usage")
 
-    # Use webdriver-manager to get the path to GeckoDriver
-    driver_path = GeckoDriverManager().install()
-
-    # Initialize the WebDriver with both service and options
-    service = Service(driver_path)
-    driver = webdriver.Firefox(service=service, options=options)
+    driver = webdriver.Chrome(options=options)
 
     return driver
-
 
 def automate_Cultivated_task(tid):
     driver = web_driver()
