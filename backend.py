@@ -81,7 +81,6 @@ def filter_paralogs(tid):
     para_df = pd.DataFrame(filtered_data_list, columns=["Species A", "Species B", "Score"])
 
     return para_df
-from webdriver_manager.chrome import ChromeDriveManager
 
 def web_driver():
     options = webdriver.ChromeOptions()
@@ -91,12 +90,7 @@ def web_driver():
     options.add_argument('--disable-gpu')
     options.add_argument("--window-size=1920, 1200")
     options.add_argument('--disable-dev-shm-usage')
-    driver_path = ChromeDriverManager().install()
-
-    # Initialize the WebDriver with both service and options
-    service = Service(driver_path)  # Set the correct chromedriver path using webdriver-manager
-    driver = webdriver.Chrome(service=service, options=options)
-    #driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(options=options)
     return driver
 
 def automate_Cultivated_task(tid):
