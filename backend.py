@@ -10,24 +10,6 @@ import base64
 import time
 import streamlit as st
 import os
-import logging
-import streamlit as st
-
-selenium_log = logging.getLogger('selenium.webdriver.remote.remote_connection')
-selenium_log.setLevel(logging.DEBUG) 
-log_stream=[]
-def capture_selenium_logs():
-    """Capture and return the logs from Selenium."""
-    # Create the log handler
-    log_handler = logging.StreamHandler()
-    log_handler.setLevel(logging.DEBUG)  # Capture all logs from Selenium
-    log_stream.clear()
-
-    # Redirect Selenium logs to our log_stream (can be an external file or in-memory list)
-    log_handler.emit = lambda record: log_stream.append(record.getMessage())
-    
-    selenium_log.addHandler(log_handler)
-
 
 df = pd.read_excel('Data/FPKM_Matrix(Ca).xlsx')
 miRNA_df = pd.read_excel('Data/8.xlsx',header=1)
@@ -108,8 +90,6 @@ def web_driver():
     options.add_argument('--disable-gpu')
     options.add_argument("--window-size=1920, 1200")
     options.add_argument('--disable-dev-shm-usage')
-    os.environ['PATH'] += ":/usr/bin/chromium"
-    options.binary_location = "/usr/bin/chromium-browser"
     driver = webdriver.Chrome(options=options)
     return driver
 
@@ -304,7 +284,6 @@ def transcriptid_info(tid):
             #st.download_button( label="Download Promoter Sequence as .txt", data=promote_file, file_name=f"{tid}_promoter_sequence.txt", mime="text/plain" )
             st.write("Paste the promoter sequence on the following link to get promoter region analysis!")
             st.write("https://bioinformatics.psb.ugent.be/webtools/plantcare/html/search_CARE_onCluster.html\n")
-            st.download_button(label="Download Selenium Logs",data="\n".join(log_stream),file_name="selenium_logs.txt",mime="text/plain")
 
         else:
             st.write("Transcript ID not found\n")
@@ -328,7 +307,7 @@ def multi_user_input_menu(mtid):
                 mtid_list = mtid.split(",")
         else:
                 mtid_list = mtid.split(" ")
-        mtid_list.sort()        
+        mtid_list.sort()
         st.subheader("Model Prediction")
         for tid in mtid_list:
             if tid in combined_data['Transcript id'].values:
@@ -386,7 +365,7 @@ def multi_transcriptid_info(mtid):
             st.subheader("Protein and PPI data")
             protein_matching_rows = protein_df[protein_df['Transcript id'].isin(mtid_list)]
             result=pd.DataFrame()
-            for tid in mtid_list:    
+            for tid in mtid_list:
                 if not protein_matching_rows.empty:
                     temp_result = protein_df[protein_df['Transcript id'] == tid]
                     result = pd.concat([result, temp_result], ignore_index=True)
@@ -459,7 +438,7 @@ def multi_transcriptid_info(mtid):
                     st.write(f"No match found for Transcript ID: {tid} in GO KEGG data\n")
             if not result.empty:
                 result = result.drop_duplicates(subset=['Transcript id'])
-                st.dataframe(result)        
+                st.dataframe(result)
 
             st.subheader("\nCellular Localisation data")
             cello_matching_row = cello_df[cello_df['Transcript id'].isin(mtid_list)]
