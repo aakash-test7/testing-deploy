@@ -13,34 +13,20 @@ import os
 import logging
 import streamlit as st
 
-# Set up logging to both file and Streamlit UI
-logging.basicConfig(filename='app2.log', level=logging.DEBUG)
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.DEBUG)
-logging.getLogger().addHandler(console_handler)
+selenium_log = logging.getLogger('selenium.webdriver.remote.remote_connection')
+selenium_log.setLevel(logging.DEBUG) 
+log_stream=[]
+def capture_selenium_logs():
+    """Capture and return the logs from Selenium."""
+    # Create the log handler
+    log_handler = logging.StreamHandler()
+    log_handler.setLevel(logging.DEBUG)  # Capture all logs from Selenium
+    log_stream.clear()
 
-# Example function to log and display logs
-def log_to_streamlit(message):
-    logging.info(message)  # Log to file
-    st.text(message)        # Display log in Streamlit UI
-
-# Log a message
-log_to_streamlit("App has started")
-
-# Create a download button for the log file
-def create_download_link(file_path):
-    with open(file_path, 'r') as file:
-        log_content = file.read()
+    # Redirect Selenium logs to our log_stream (can be an external file or in-memory list)
+    log_handler.emit = lambda record: log_stream.append(record.getMessage())
     
-    # Create a download button for the log file
-    st.download_button(
-        label="Download log file",
-        data=log_content,
-        file_name="app2.log",
-        mime="text/plain"
-    )
-
-# Provide a download link for the log file
+    selenium_log.addHandler(log_handler)
 
 
 df = pd.read_excel('Data/FPKM_Matrix(Ca).xlsx')
@@ -318,7 +304,7 @@ def transcriptid_info(tid):
             #st.download_button( label="Download Promoter Sequence as .txt", data=promote_file, file_name=f"{tid}_promoter_sequence.txt", mime="text/plain" )
             st.write("Paste the promoter sequence on the following link to get promoter region analysis!")
             st.write("https://bioinformatics.psb.ugent.be/webtools/plantcare/html/search_CARE_onCluster.html\n")
-            create_download_link('app2.log')
+            st.download_button(label="Download Selenium Logs",data="\n".join(log_stream),file_name="selenium_logs.txt",mime="text/plain")
 
         else:
             st.write("Transcript ID not found\n")
