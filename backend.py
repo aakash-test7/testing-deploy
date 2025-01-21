@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import base64
 import time
 import streamlit as st
+import os
 
 df = pd.read_excel('Data/FPKM_Matrix(Ca).xlsx')
 miRNA_df = pd.read_excel('Data/8.xlsx',header=1)
@@ -89,6 +90,8 @@ def web_driver():
     options.add_argument('--disable-gpu')
     options.add_argument("--window-size=1920, 1200")
     options.add_argument('--disable-dev-shm-usage')
+    os.environ['PATH'] += ":/usr/bin/chromium"
+    options.binary_location = "/usr/bin/chromium-browser"
     driver = webdriver.Chrome(options=options)
     return driver
 
@@ -156,8 +159,6 @@ def automate_Wild_task(tid):
     driver.quit()
 
     return page_source
-    
-col1, col2 = st.columns(2)
 
 def transcriptid_info(tid):
     if 'Transcript id' in df.columns and 'lncRNA' in df.columns:
@@ -224,14 +225,15 @@ def transcriptid_info(tid):
             st.subheader("SNP Calling data")
             st.write("Result data for both Cultivated and Wild varieties will be downloaded in the form of HTML content. Click on the files to view data\n")
             try:
+                con1,con2=st.columns(2)
                 # Cultivated SNP Download Button
-                with col1:
+                with con1:
                     html_Cultivated_page_source = automate_Cultivated_task(tid)
                     b64_html = base64.b64encode(html_Cultivated_page_source.encode()).decode()  # Convert to base64
                     html_href = f'<a href="data:text/html;base64,{b64_html}" download="{tid}_Cultivated_SNP.html">Download Cultivated SNP as .html</a>'
                     st.markdown(html_href, unsafe_allow_html=True)
                 # Wild SNP Download Button
-                with col2:
+                with con2:
                     html_wild_page_source = automate_Wild_task(tid)
                     b64_html2 = base64.b64encode(html_wild_page_source.encode()).decode()  # Convert to base64
                     html_href2 = f'<a href="data:text/html;base64,{b64_html2}" download="{tid}_Wild_SNP.html">Download Wild SNP as .html</a>'
@@ -406,19 +408,20 @@ def multi_transcriptid_info(mtid):
             st.write("Result data for both Cultivated and Wild varieties will be downloaded in the form of HTML content. Click on the files to view data\n")
             for tid in mtid_list:
                 try:
+                    com1,com2=st.columns(2)
                     # Cultivated SNP Download Button
-                    with col1:
+                    with com1:
                         #st.markdown(f"#### {tid} Cultivated SNP")
                         html_Cultivated_page_source = automate_Cultivated_task(tid)
                         b64_html = base64.b64encode(html_Cultivated_page_source.encode()).decode()  # Convert to base64
-                        html_href = f'<a href="data:text/html;base64,{b64_html}" download="{tid}_Cultivated_SNP.html">Download Cultivated SNP as .html</a>'
+                        html_href = f'<a href="data:text/html;base64,{b64_html}" download="{tid}_Cultivated_SNP.html">Download {tid} Cultivated SNP as .html</a>'
                         st.markdown(html_href, unsafe_allow_html=True)
                     # Wild SNP Download Button
-                    with col2:
+                    with com2:
                         #st.markdown(f"#### {tid} Wild SNP")
                         html_wild_page_source = automate_Wild_task(tid)
                         b64_html2 = base64.b64encode(html_wild_page_source.encode()).decode()  # Convert to base64
-                        html_href2 = f'<a href="data:text/html;base64,{b64_html2}" download="{tid}_Wild_SNP.html">Download Wild SNP as .html</a>'
+                        html_href2 = f'<a href="data:text/html;base64,{b64_html2}" download="{tid}_Wild_SNP.html">Download {tid} Wild SNP as .html</a>'
                         st.markdown(html_href2, unsafe_allow_html=True)
 
                 except Exception as e:
