@@ -81,7 +81,7 @@ def filter_paralogs(tid):
     para_df = pd.DataFrame(filtered_data_list, columns=["Species A", "Species B", "Score"])
 
     return para_df
-from selenium.webdriver.common.selenium_manager import SeleniumManager
+from webdriver_manager.chrome import ChromeDriveManager
 
 def web_driver():
     options = webdriver.ChromeOptions()
@@ -91,16 +91,10 @@ def web_driver():
     options.add_argument('--disable-gpu')
     options.add_argument("--window-size=1920, 1200")
     options.add_argument('--disable-dev-shm-usage')
-    selenium_manager = SeleniumManager()
-    chromedriver_path = selenium_manager.get_driver_path("chrome")  # Get chromedriver path
-
-    if not chromedriver_path:
-        raise Exception("ChromeDriver could not be found or set up.")
-
-    # Initialize Service object with chromedriver path
-    service = Service(chromedriver_path)  # Pass the chromedriver path here
+    driver_path = ChromeDriverManager().install()
 
     # Initialize the WebDriver with both service and options
+    service = Service(driver_path)  # Set the correct chromedriver path using webdriver-manager
     driver = webdriver.Chrome(service=service, options=options)
     #driver = webdriver.Chrome(options=options)
     return driver
