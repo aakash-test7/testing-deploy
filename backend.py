@@ -5,7 +5,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
-from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import base64
 import time
@@ -84,18 +83,14 @@ def filter_paralogs(tid):
     return para_df
 
 def web_driver():
-    options = Options()
-    options.binary_location = "/mount/src/testing-deploy/assets/chromium/chromium"  # Update this path as needed
-
-    options.add_argument(f'--driver-path=/mount/src/testing-deploy/assets/chromedriver/chromedriver')  # Update path as needed
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1200")
-    options.add_argument("--disable-dev-shm-usage")
-
+    options = webdriver.ChromeOptions()
+    options.add_argument("--verbose")
+    options.add_argument('--no-sandbox')
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument("--window-size=1920, 1200")
+    options.add_argument('--disable-dev-shm-usage')
     driver = webdriver.Chrome(options=options)
-
     return driver
 
 def automate_Cultivated_task(tid):
@@ -122,7 +117,7 @@ def automate_Cultivated_task(tid):
     search_button = driver.find_element(By.NAME, "submit")
     search_button.click()
 
-    time.sleep(60)
+    time.sleep(5)
 
     page_source = driver.page_source
     soup = BeautifulSoup(page_source, 'html.parser')
@@ -154,7 +149,7 @@ def automate_Wild_task(tid):
     search_button = driver.find_element(By.NAME, "submitw")
     search_button.click()
 
-    time.sleep(60)
+    time.sleep(5)
 
     page_source = driver.page_source
 
@@ -227,23 +222,23 @@ def transcriptid_info(tid):
 
             st.subheader("SNP Calling data")
             st.write("Result data for both Cultivated and Wild varieties will be downloaded in the form of HTML content. Click on the files to view data\n")
-            #try:
-            con1,con2=st.columns(2)
-            # Cultivated SNP Download Button
-            with con1:
-                html_Cultivated_page_source = automate_Cultivated_task(tid)
-                b64_html = base64.b64encode(html_Cultivated_page_source.encode()).decode()  # Convert to base64
-                html_href = f'<a href="data:text/html;base64,{b64_html}" download="{tid}_Cultivated_SNP.html">Download Cultivated SNP as .html</a>'
-                st.markdown(html_href, unsafe_allow_html=True)
-            # Wild SNP Download Button
-            with con2:
-                html_wild_page_source = automate_Wild_task(tid)
-                b64_html2 = base64.b64encode(html_wild_page_source.encode()).decode()  # Convert to base64
-                html_href2 = f'<a href="data:text/html;base64,{b64_html2}" download="{tid}_Wild_SNP.html">Download Wild SNP as .html</a>'
-                st.markdown(html_href2, unsafe_allow_html=True)
-            #except Exception as e:
-                #st.write("Error ! Error ! Error !")
-                #st.write("Unable to fetch data from the server. Please try again later -->","https://cegresources.icrisat.org/cicerseq/?page_id=3605\n")
+            try:
+                con1,con2=st.columns(2)
+                # Cultivated SNP Download Button
+                with con1:
+                    html_Cultivated_page_source = automate_Cultivated_task(tid)
+                    b64_html = base64.b64encode(html_Cultivated_page_source.encode()).decode()  # Convert to base64
+                    html_href = f'<a href="data:text/html;base64,{b64_html}" download="{tid}_Cultivated_SNP.html">Download Cultivated SNP as .html</a>'
+                    st.markdown(html_href, unsafe_allow_html=True)
+                # Wild SNP Download Button
+                with con2:
+                    html_wild_page_source = automate_Wild_task(tid)
+                    b64_html2 = base64.b64encode(html_wild_page_source.encode()).decode()  # Convert to base64
+                    html_href2 = f'<a href="data:text/html;base64,{b64_html2}" download="{tid}_Wild_SNP.html">Download Wild SNP as .html</a>'
+                    st.markdown(html_href2, unsafe_allow_html=True)
+            except Exception as e:
+                st.write("Error ! Error ! Error !")
+                st.write("Unable to fetch data from the server. Please try again later -->","https://cegresources.icrisat.org/cicerseq/?page_id=3605\n")
             st.subheader("GO and KEGG data")
             GO_matching_row = GO_df[GO_df['Transcript id'] == tid]
             if not GO_matching_row.empty:
